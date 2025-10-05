@@ -24,7 +24,7 @@ class BookingController extends Controller
             'child_quantity' => 'required|integer|min:0',
         ]);
         
-        // Kiểm tra ngày đi có trong khoảng thời gian sự kiện
+        // Kiểm tra ngày đi có trong khoảng thời gian sự kiện (giữ lại ràng buộc ngày)
         if ($request->visit_date < $event->start_date || $request->visit_date > $event->end_date) {
             return back()->with('error', 'Ngày đi không hợp lệ cho sự kiện này.');
         }
@@ -42,7 +42,7 @@ class BookingController extends Controller
         // Tạo key duy nhất cho mỗi item trong giỏ hàng
         $cartKey = $event->id . '_' . $request->visit_date;
 
-        // Kiểm tra tồn kho theo tổng capacity nếu có
+        // Kiểm tra tồn kho theo tổng capacity nếu có (daily_capacity đã loại bỏ)
         if (!is_null($event->total_capacity)) {
             $sold = Ticket::where('event_id', $event->id)
                 ->whereIn('status', ['paid', 'checked_in'])
