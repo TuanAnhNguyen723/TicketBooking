@@ -8,7 +8,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->unsignedInteger('total_capacity')->nullable()->after('daily_capacity');
+            // Đặt sau cột 'is_active' cho an toàn nếu daily_capacity đã bị xoá
+            $table->unsignedInteger('total_capacity')->nullable()->after('is_active');
         });
     }
 
