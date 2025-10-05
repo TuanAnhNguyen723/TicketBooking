@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Event;
+use App\Models\Ticket;
 
 class EventController extends Controller
 {
@@ -48,5 +49,23 @@ class EventController extends Controller
         $reviews = $event->reviews()->with('user')->latest()->take(5)->get();
         
         return view('events.show', compact('event', 'reviews'));
+    }
+
+    /**
+     * Trả về số vé còn lại (theo tổng capacity)
+     */
+    public function availability(Request $request, Event $event)
+    {
+        if (is_null($event->total_capacity)) {
+            return response()->json(['unlimited' => true, 'remaining' => null]);
+        }
+
+        $sold = Ticket::where('event_id', $event->id)
+            ->whereIn('status', ['paid', 'checked_in'])
+            ->count();
+
+        $remaining = max(0, $event->total_capacity - $sold);
+
+        return response()->json(['unlimited' => false, 'remaining' => $remaining]);
     }
 }

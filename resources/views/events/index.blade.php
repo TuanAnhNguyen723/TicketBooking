@@ -32,6 +32,22 @@
                              class="card-img-top event-image" 
                              alt="{{ $event->name }}"
                              onerror="this.src='https://via.placeholder.com/400x220?text=No+Image'">
+                        @php
+                            $remainingTotal = null;
+                            if (!is_null($event->total_capacity)) {
+                                $sold = \App\Models\Ticket::where('event_id', $event->id)
+                                    ->whereIn('status', ['paid','checked_in'])
+                                    ->count();
+                                $remainingTotal = max(0, $event->total_capacity - $sold);
+                            }
+                        @endphp
+                        @if(!is_null($event->total_capacity))
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge bg-danger bg-gradient px-3 py-2">
+                                Còn lại: {{ $remainingTotal }}
+                            </span>
+                        </div>
+                        @endif
                         <div class="position-absolute top-0 end-0 m-3">
                             <span class="badge bg-success">
                                 <i class="fas fa-calendar-check me-1"></i>

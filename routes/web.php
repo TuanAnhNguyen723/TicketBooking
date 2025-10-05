@@ -7,6 +7,12 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReviewController;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Admin\EventAdminController;
+use App\Http\Controllers\Admin\OrderAdminController;
+use App\Http\Controllers\Admin\TicketAdminController;
+use App\Http\Controllers\Admin\UserAdminController;
+use App\Http\Controllers\Admin\ReviewAdminController;
 
 // Trang chủ - hiển thị danh sách sự kiện
 Route::get('/', [EventController::class, 'index'])->name('home');
@@ -16,6 +22,8 @@ Route::get('/search', [EventController::class, 'search'])->name('events.search')
 
 // Chi tiết sự kiện
 Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+// Kiểm tra số vé còn lại theo ngày
+Route::get('/events/{event}/availability', [EventController::class, 'availability'])->name('events.availability');
 
 // Đặt vé
 Route::post('/events/{event}/book', [BookingController::class, 'addToCart'])->name('booking.add-to-cart');
@@ -85,3 +93,15 @@ Route::post('/logout', function (Illuminate\Http\Request $request) {
     $request->session()->regenerateToken();
     return redirect('/');
 })->name('logout');
+
+// Khu vực quản trị đơn giản (không cần phân quyền theo yêu cầu)
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::redirect('/', '/admin/events');
+
+    // CRUD cơ bản cho các thực thể
+    Route::resource('events', EventAdminController::class);
+    Route::resource('orders', OrderAdminController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+    Route::resource('tickets', TicketAdminController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+    Route::resource('users', UserAdminController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+    Route::resource('reviews', ReviewAdminController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+});

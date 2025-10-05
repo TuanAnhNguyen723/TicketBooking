@@ -358,6 +358,7 @@
                                    min="{{ max($event->start_date, now()->toDateString()) }}"
                                    max="{{ $event->end_date }}"
                                    required>
+                            <div class="form-text" id="availability_help"></div>
                         </div>
                         
                         <div class="row mb-3">
@@ -392,6 +393,24 @@
                                 <span class="text-success fs-4 fw-bold" id="total_price">0đ</span>
                             </div>
                         </div>
+
+                        @php
+                            $remainingTotal = null;
+                            if (!is_null($event->total_capacity)) {
+                                $sold = \App\Models\Ticket::where('event_id', $event->id)
+                                    ->whereIn('status', ['paid','checked_in'])
+                                    ->count();
+                                $remainingTotal = max(0, $event->total_capacity - $sold);
+                            }
+                        @endphp
+                        @if(!is_null($event->total_capacity))
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <div>
+                                Số vé còn lại: <strong>{{ $remainingTotal }}</strong>
+                            </div>
+                        </div>
+                        @endif
                         
                         <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 booking-btn">
                             <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ hàng
@@ -681,6 +700,23 @@
         const adultPrice = {{ $event->adult_price }};
         const childPrice = {{ $event->child_price }};
         
+        async function fetchAvailability() {
+            const dateInput = document.querySelector('#visit_date');
+            const help = document.querySelector('#availability_help');
+            if (!dateInput || !help) return;
+            const selected = dateInput.value;
+            if (!selected) { help.textContent = ''; return; }
+            try {
+                const res = await fetch(`{{ route('events.availability', $event) }}?date=${selected}`);
+                const data = await res.json();
+                if (data.unlimited) {
+                    help.textContent = 'Số lượng: không giới hạn';
+                } else {
+                    help.textContent = `Còn lại: ${data.remaining} vé`;
+                }
+            } catch { /* ignore */ }
+        }
+
         function updateTotal() {
             const adultQty = parseInt(adultSelect.value) || 0;
             const childQty = parseInt(childSelect.value) || 0;
@@ -697,9 +733,11 @@
         
         adultSelect.addEventListener('change', updateTotal);
         childSelect.addEventListener('change', updateTotal);
+        document.querySelector('#visit_date').addEventListener('change', () => { fetchAvailability(); });
         
         // Initialize total price
         updateTotal();
+        fetchAvailability();
         
         // Thumbnail click functionality
         const thumbnailItems = document.querySelectorAll('.thumbnail-item');

@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -40,6 +41,25 @@ class BookingController extends Controller
 
         // Tạo key duy nhất cho mỗi item trong giỏ hàng
         $cartKey = $event->id . '_' . $request->visit_date;
+
+        // Kiểm tra tồn kho theo tổng capacity nếu có
+        if (!is_null($event->total_capacity)) {
+            $sold = Ticket::where('event_id', $event->id)
+                ->whereIn('status', ['paid', 'checked_in'])
+                ->count();
+
+            // tính số vé của cùng sự kiện đang có sẵn trong cart (mọi ngày)
+            $existingInCart = collect($cart)
+                ->where('event_id', $event->id)
+                ->sum(function ($i) { return (int)$i['adult_quantity'] + (int)$i['child_quantity']; });
+
+            $requestedTotal = $adultQuantity + $childQuantity;
+            $remaining = max(0, $event->total_capacity - $sold - $existingInCart);
+
+            if ($requestedTotal > $remaining) {
+                return back()->with('error', 'Không đủ vé. Chỉ còn ' . $remaining . ' vé.');
+            }
+        }
 
         if (isset($cart[$cartKey])) {
             // Cập nhật số lượng nếu item đã tồn tại
@@ -177,52 +197,72 @@ class BookingController extends Controller
             'payment_method' => 'required|in:card,ewallet,qr',
         ]);
 
-        // Tạo đơn hàng
-        $order = Order::create([
-            'user_id' => Auth::id(),
-            'order_number' => 'ORD' . time() . rand(1000, 9999),
-            'total_amount' => $this->calculateTotal($cart),
-            'status' => 'paid',
-            'payment_method' => $request->payment_method,
-            'payment_reference' => 'PAY' . time() . rand(1000, 9999),
-        ]);
+        try {
+            $order = DB::transaction(function () use ($cart, $request) {
+                $order = Order::create([
+                    'user_id' => Auth::id(),
+                    'order_number' => 'ORD' . time() . rand(1000, 9999),
+                    'total_amount' => $this->calculateTotal($cart),
+                    'status' => 'paid',
+                    'payment_method' => $request->payment_method,
+                    'payment_reference' => 'PAY' . time() . rand(1000, 9999),
+                ]);
 
-        // Tạo vé cho từng item trong giỏ hàng
-        foreach ($cart as $item) {
-            // Tạo vé người lớn
-            if ($item['adult_quantity'] > 0) {
-                for ($i = 0; $i < $item['adult_quantity']; $i++) {
-                    Ticket::create([
-                        'event_id' => $item['event_id'],
-                        'order_id' => $order->id,
-                        'type' => 'adult',
-                        'quantity' => 1,
-                        'price' => $item['adult_price'],
-                        'visit_date' => $item['visit_date'],
-                        'qr_code' => 'QR' . Str::random(20),
-                        'status' => 'paid',
-                    ]);
-                }
-            }
+                foreach ($cart as $item) {
+                    $event = Event::find($item['event_id']);
+                    $totalRequested = ((int) $item['adult_quantity']) + ((int) $item['child_quantity']);
 
-            // Tạo vé trẻ em
-            if ($item['child_quantity'] > 0) {
-                for ($i = 0; $i < $item['child_quantity']; $i++) {
-                    Ticket::create([
-                        'event_id' => $item['event_id'],
-                        'order_id' => $order->id,
-                        'type' => 'child',
-                        'quantity' => 1,
-                        'price' => $item['child_price'],
-                        'visit_date' => $item['visit_date'],
-                        'qr_code' => 'QR' . Str::random(20),
-                        'status' => 'paid',
-                    ]);
+                    if (!is_null($event->total_capacity)) {
+                        $sold = Ticket::where('event_id', $event->id)
+                            ->whereIn('status', ['paid', 'checked_in'])
+                            ->lockForUpdate()
+                            ->count();
+
+                        $remaining = $event->total_capacity - $sold;
+                        if ($totalRequested > $remaining) {
+                            throw new \RuntimeException('Không đủ vé. Còn lại: ' . max(0, $remaining));
+                        }
+                    }
+
+                    // Tạo vé người lớn
+                    if ($item['adult_quantity'] > 0) {
+                        for ($i = 0; $i < $item['adult_quantity']; $i++) {
+                            Ticket::create([
+                                'event_id' => $item['event_id'],
+                                'order_id' => $order->id,
+                                'type' => 'adult',
+                                'quantity' => 1,
+                                'price' => $item['adult_price'],
+                                'visit_date' => $item['visit_date'],
+                                'qr_code' => 'QR' . Str::random(20),
+                                'status' => 'paid',
+                            ]);
+                        }
+                    }
+
+                    // Tạo vé trẻ em
+                    if ($item['child_quantity'] > 0) {
+                        for ($i = 0; $i < $item['child_quantity']; $i++) {
+                            Ticket::create([
+                                'event_id' => $item['event_id'],
+                                'order_id' => $order->id,
+                                'type' => 'child',
+                                'quantity' => 1,
+                                'price' => $item['child_price'],
+                                'visit_date' => $item['visit_date'],
+                                'qr_code' => 'QR' . Str::random(20),
+                                'status' => 'paid',
+                            ]);
+                        }
+                    }
                 }
-            }
+
+                return $order;
+            });
+        } catch (\RuntimeException $e) {
+            return redirect()->route('cart')->with('error', $e->getMessage());
         }
 
-        // Xóa giỏ hàng
         Session::forget('cart');
 
         return redirect()->route('orders.show', $order)->with('success', 'Thanh toán thành công!');

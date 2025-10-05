@@ -21,6 +21,8 @@ class Event extends Model
         'opening_time',
         'closing_time',
         'is_active'
+        , 'daily_capacity'
+        , 'total_capacity'
     ];
 
     protected $casts = [
@@ -32,6 +34,8 @@ class Event extends Model
         'opening_time' => 'datetime:H:i',
         'closing_time' => 'datetime:H:i',
         'is_active' => 'boolean'
+        , 'daily_capacity' => 'integer'
+        , 'total_capacity' => 'integer'
     ];
 
     public function tickets(): HasMany
