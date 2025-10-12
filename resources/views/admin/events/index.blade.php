@@ -24,9 +24,25 @@
                 @foreach ($events as $event)
                     <tr class="hover:bg-gray-50">
                         <td class="py-3 px-4">{{ $event->id }}</td>
-                        <td class="py-3 px-4 font-medium text-gray-900">{{ $event->name }}</td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-3">
+                                @if($event->image)
+                                <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                                    <img src="{{ asset($event->image) }}" alt="{{ $event->name }}" class="w-full h-full object-cover">
+                                </div>
+                                @else
+                                <div class="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-image text-gray-400"></i>
+                                </div>
+                                @endif
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ $event->name }}</div>
+                                    <div class="text-sm text-gray-500">{{ $event->location }}</div>
+                                </div>
+                            </div>
+                        </td>
                         <td class="py-3 px-4">{{ $event->start_date }} → {{ $event->end_date }}</td>
-                        <td class="py-3 px-4">{{ $event->adult_price }} / {{ $event->child_price }}</td>
+                        <td class="py-3 px-4">{{ number_format($event->adult_price) }}₫ / {{ number_format($event->child_price) }}₫</td>
                         <td class="py-3 px-4">
                             @if ($event->is_active)
                                 <span class="inline-flex items-center rounded-full bg-green-100 text-green-800 px-2.5 py-0.5 text-xs font-medium">Active</span>
@@ -36,8 +52,9 @@
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex items-center gap-3">
+                                <a href="{{ route('admin.events.show', $event) }}" class="text-blue-600 hover:underline">Xem</a>
                                 <a href="{{ route('admin.events.edit', $event) }}" class="text-primary-600 hover:underline">Sửa</a>
-                                <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Xóa sự kiện này?');">
+                                <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Xóa sự kiện này?');" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:underline">Xóa</button>

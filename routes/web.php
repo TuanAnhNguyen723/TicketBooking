@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\TicketAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Admin\ReviewAdminController;
+use App\Http\Controllers\Admin\ReportController;
 
 // Trang chủ - hiển thị danh sách sự kiện
 Route::get('/', [EventController::class, 'index'])->name('home');
@@ -104,4 +105,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('tickets', TicketAdminController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
     Route::resource('users', UserAdminController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
     Route::resource('reviews', ReviewAdminController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+    
+    // Báo cáo & Thống kê
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/revenue-by-time', [ReportController::class, 'revenueByTime'])->name('revenue-by-time');
+        Route::get('/revenue-chart-data', [ReportController::class, 'getRevenueChartData'])->name('revenue-chart-data');
+    });
 });

@@ -26,6 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style type="text/tailwindcss">
         @layer base {
             label.form-label { @apply block text-sm font-medium text-gray-700; }
@@ -47,19 +48,22 @@
             </div>
             <nav class="flex-1 p-3 space-y-1">
                 <a href="{{ route('admin.events.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg {{ request()->routeIs('admin.events.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700' }}">
-                    <span>📅</span><span>Sự kiện</span>
+                    <i class="fas fa-calendar-alt w-5"></i><span>Sự kiện</span>
                 </a>
                 <a href="{{ route('admin.orders.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg {{ request()->routeIs('admin.orders.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700' }}">
-                    <span>🧾</span><span>Đơn hàng</span>
+                    <i class="fas fa-receipt w-5"></i><span>Đơn hàng</span>
                 </a>
                 <a href="{{ route('admin.tickets.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg {{ request()->routeIs('admin.tickets.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700' }}">
-                    <span>🎫</span><span>Vé</span>
+                    <i class="fas fa-ticket-alt w-5"></i><span>Vé</span>
                 </a>
                 <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700' }}">
-                    <span>👤</span><span>Người dùng</span>
+                    <i class="fas fa-users w-5"></i><span>Người dùng</span>
                 </a>
                 <a href="{{ route('admin.reviews.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg {{ request()->routeIs('admin.reviews.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700' }}">
-                    <span>⭐</span><span>Đánh giá</span>
+                    <i class="fas fa-star w-5"></i><span>Đánh giá</span>
+                </a>
+                <a href="{{ route('admin.reports.revenue-by-time') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg {{ request()->routeIs('admin.reports.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700' }}">
+                    <i class="fas fa-chart-line w-5"></i><span>Báo cáo</span>
                 </a>
             </nav>
             <div class="p-3 text-xs text-gray-500">© {{ date('Y') }} TicketBooking</div>

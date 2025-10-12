@@ -53,10 +53,19 @@
                     <div class="carousel-inner">
                         <div class="carousel-item active">
                             <div class="position-relative">
-                                <img src="{{ asset('images/events/' . $event->image) }}" 
+                                @if($event->image)
+                                <img src="{{ asset($event->image) }}" 
                                      class="d-block w-100 event-main-image" 
                                      alt="{{ $event->name }}"
                                      onerror="this.src='https://via.placeholder.com/800x500?text=No+Image'">
+                                @else
+                                <div class="d-block w-100 event-main-image bg-gray-200 d-flex align-items-center justify-content-center">
+                                    <div class="text-center text-muted">
+                                        <i class="fas fa-image fa-5x mb-3"></i>
+                                        <h5>Chưa có ảnh</h5>
+                                    </div>
+                                </div>
+                                @endif
                                 <div class="position-absolute top-0 end-0 m-3">
                                     <span class="badge bg-primary bg-gradient fs-6 px-3 py-2">
                                         <i class="fas fa-camera me-1"></i>Hình chính
@@ -68,7 +77,7 @@
                             @foreach($event->gallery as $index => $image)
                                 <div class="carousel-item">
                                     <div class="position-relative">
-                                        <img src="{{ asset('images/events/' . $image) }}" 
+                                        <img src="{{ asset($image) }}" 
                                              class="d-block w-100 event-main-image" 
                                              alt="{{ $event->name }}"
                                              onerror="this.src='https://via.placeholder.com/800x500?text=No+Image'">
@@ -98,16 +107,22 @@
                         <div class="row g-2">
                             <div class="col-3">
                                 <div class="thumbnail-item active" data-bs-target="#eventCarousel" data-bs-slide-to="0">
-                                    <img src="{{ asset('images/events/' . $event->image) }}" 
+                                    @if($event->image)
+                                    <img src="{{ asset($event->image) }}" 
                                          class="img-fluid rounded thumbnail-img" 
                                          alt="Thumbnail 1"
                                          onerror="this.src='https://via.placeholder.com/150x100?text=No+Image'">
+                                    @else
+                                    <div class="img-fluid rounded thumbnail-img bg-gray-200 d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-image text-gray-400"></i>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                             @foreach($event->gallery as $index => $image)
                                 <div class="col-3">
                                     <div class="thumbnail-item" data-bs-target="#eventCarousel" data-bs-slide-to="{{ $index + 1 }}">
-                                        <img src="{{ asset('images/events/' . $image) }}" 
+                                        <img src="{{ asset($image) }}" 
                                              class="img-fluid rounded thumbnail-img" 
                                              alt="Thumbnail {{ $index + 2 }}"
                                              onerror="this.src='https://via.placeholder.com/150x100?text=No+Image'">

@@ -3,89 +3,412 @@
 @section('title', 'Sửa sự kiện')
 
 @section('content')
-<div class="mb-4 flex items-center justify-between">
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
     <div>
-        <h2 class="text-xl font-semibold text-gray-800">Sửa sự kiện</h2>
-        <p class="text-gray-500 text-sm">Cập nhật thông tin, lịch và tồn kho vé cho sự kiện</p>
+            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="fas fa-edit text-primary-600"></i>
+                Sửa sự kiện
+            </h2>
+            <p class="text-gray-600 mt-1">Cập nhật thông tin sự kiện</p>
     </div>
-    <a href="{{ route('admin.events.show', $event) }}" class="px-3 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">Quay lại</a>
+        <a href="{{ route('admin.events.show', $event) }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại
+        </a>
  </div>
 
-<form action="{{ route('admin.events.update', $event) }}" method="POST" class="space-y-6">
+    <!-- Form -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <form action="{{ route('admin.events.update', $event) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
     @csrf
     @method('PUT')
 
     <!-- Thông tin cơ bản -->
-    <div class="bg-white border border-gray-200 rounded-xl p-5">
-        <h3 class="font-semibold text-gray-800 mb-4">Thông tin cơ bản</h3>
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                    Thông tin cơ bản
+                </h3>
+                
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label class="form-label">Tên sự kiện
-                <input type="text" name="name" value="{{ old('name', $event->name) }}" required class="form-input" placeholder="Tên nổi bật, dễ hiểu">
+                    <div>
+                        <label for="name" class="form-label">Tên sự kiện <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" id="name" value="{{ old('name', $event->name) }}" required 
+                               class="form-input @error('name') border-red-500 @enderror"
+                               placeholder="Nhập tên sự kiện">
+                        @error('name')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="location" class="form-label">Địa điểm <span class="text-red-500">*</span></label>
+                        <input type="text" name="location" id="location" value="{{ old('location', $event->location) }}" required 
+                               class="form-input @error('location') border-red-500 @enderror"
+                               placeholder="Nhập địa điểm tổ chức">
+                        @error('location')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+        </div>
+    </div>
+
+                <div>
+                    <label for="short_description" class="form-label">Mô tả ngắn</label>
+                    <input type="text" name="short_description" id="short_description" value="{{ old('short_description', $event->short_description) }}" 
+                           class="form-input @error('short_description') border-red-500 @enderror"
+                           placeholder="Mô tả ngắn gọn về sự kiện">
+                    @error('short_description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="description" class="form-label">Mô tả chi tiết</label>
+                    <textarea name="description" id="description" rows="4" 
+                              class="form-textarea @error('description') border-red-500 @enderror"
+                              placeholder="Mô tả chi tiết về sự kiện">{{ old('description', $event->description) }}</textarea>
+                    @error('description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Giá vé -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fas fa-ticket-alt text-green-600"></i>
+                    Giá vé
+                </h3>
+                
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="adult_price" class="form-label">Giá vé người lớn <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="number" step="0.01" name="adult_price" id="adult_price" value="{{ old('adult_price', $event->adult_price) }}" required 
+                                   class="form-input pr-8 @error('adult_price') border-red-500 @enderror"
+                                   placeholder="0.00">
+                            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">₫</span>
+                        </div>
+                        @error('adult_price')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="child_price" class="form-label">Giá vé trẻ em <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="number" step="0.01" name="child_price" id="child_price" value="{{ old('child_price', $event->child_price) }}" required 
+                                   class="form-input pr-8 @error('child_price') border-red-500 @enderror"
+                                   placeholder="0.00">
+                            <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">₫</span>
+                        </div>
+                        @error('child_price')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+        </div>
+    </div>
+
+            <!-- Thời gian -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fas fa-calendar-alt text-purple-600"></i>
+                    Thời gian
+                </h3>
+                
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="start_date" class="form-label">Ngày bắt đầu <span class="text-red-500">*</span></label>
+                        <input type="date" name="start_date" id="start_date" value="{{ old('start_date', optional($event->start_date)->format('Y-m-d')) }}" required 
+                               class="form-input @error('start_date') border-red-500 @enderror">
+                        @error('start_date')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="end_date" class="form-label">Ngày kết thúc <span class="text-red-500">*</span></label>
+                        <input type="date" name="end_date" id="end_date" value="{{ old('end_date', optional($event->end_date)->format('Y-m-d')) }}" required 
+                               class="form-input @error('end_date') border-red-500 @enderror">
+                        @error('end_date')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="opening_time" class="form-label">Giờ mở cửa</label>
+                        <input type="time" name="opening_time" id="opening_time" value="{{ old('opening_time', optional($event->opening_time)->format('H:i')) }}" 
+                               class="form-input @error('opening_time') border-red-500 @enderror">
+                        @error('opening_time')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="closing_time" class="form-label">Giờ đóng cửa</label>
+                        <input type="time" name="closing_time" id="closing_time" value="{{ old('closing_time', optional($event->closing_time)->format('H:i')) }}" 
+                               class="form-input @error('closing_time') border-red-500 @enderror">
+                        @error('closing_time')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hình ảnh -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fas fa-images text-orange-600"></i>
+                    Hình ảnh
+                </h3>
+                
+                <!-- Ảnh đại diện -->
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-user-circle text-blue-600"></i>
+                        Ảnh đại diện
+                    </h4>
+                    
+                    <div class="flex flex-col md:flex-row gap-6 items-start">
+                        <!-- Current image -->
+                        <div class="w-full md:w-48 flex-shrink-0">
+                            @if($event->image)
+                            <div class="mb-3">
+                                <p class="text-sm text-gray-600 mb-2">Ảnh hiện tại:</p>
+                                <div class="aspect-square bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+                                    <img src="{{ asset($event->image) }}" alt="Current image" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            @endif
+                            
+                            <!-- Preview area for new image -->
+                            <div class="preview-container aspect-square">
+                                <!-- Placeholder -->
+                                <div id="preview-image" class="preview-placeholder">
+                                    <div class="text-center text-gray-400">
+                                        <i class="fas fa-image text-4xl mb-2"></i>
+                                        <p class="text-sm">Chưa chọn ảnh mới</p>
+                                    </div>
+                                </div>
+                                <!-- Preview Image -->
+                                <img id="preview-image-src" src="" alt="Preview" class="preview-image" style="display: none;">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 text-center">Preview ảnh mới</p>
+                        </div>
+                        
+                        <!-- Upload area -->
+                        <div class="flex-1">
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-primary-400 hover:bg-primary-50 transition-all duration-200">
+                                <div class="text-center">
+                                    <i class="fas fa-cloud-upload-alt text-gray-400 text-5xl mb-4"></i>
+                                    <div class="space-y-2">
+                                        <label for="image" class="relative cursor-pointer bg-white rounded-lg font-medium text-primary-600 hover:text-primary-500 px-4 py-2 border border-primary-300 hover:border-primary-400 transition">
+                                            <span>Chọn ảnh đại diện mới</span>
+                                            <input id="image" name="image" type="file" class="sr-only" accept="image/*" onchange="previewImage(this, 'preview-image')">
             </label>
-            <label class="form-label">Địa điểm
-                <input type="text" name="location" value="{{ old('location', $event->location) }}" required class="form-input" placeholder="vd: Phú Quốc, Kiên Giang">
+                                        <p class="text-sm text-gray-600">hoặc kéo thả ảnh vào đây</p>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF • Tối đa 2MB</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @error('image')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thư viện ảnh -->
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center gap-2">
+                        <i class="fas fa-images text-green-600"></i>
+                        Thư viện ảnh
+                    </h4>
+                    
+                    <!-- Current gallery -->
+                    @if($event->gallery && count($event->gallery) > 0)
+                    <div class="mb-6">
+                        <p class="text-sm text-gray-600 mb-3">Thư viện ảnh hiện tại:</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            @foreach($event->gallery as $galleryImage)
+                            <div class="relative group">
+                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
+                                    <img src="{{ asset($galleryImage) }}" alt="Gallery image" class="w-full h-full object-cover">
+                                </div>
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-eye text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                    
+                    <!-- Preview new gallery -->
+                    <div id="preview-gallery" class="mb-4 hidden">
+                        <p class="text-sm text-gray-600 mb-3">Ảnh mới đã chọn:</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="gallery-preview-grid">
+                        </div>
+                    </div>
+                    
+                    <!-- Upload area -->
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-primary-400 hover:bg-primary-50 transition-all duration-200">
+                        <div class="text-center">
+                            <i class="fas fa-images text-gray-400 text-5xl mb-4"></i>
+                            <div class="space-y-2">
+                                <label for="gallery_images" class="relative cursor-pointer bg-white rounded-lg font-medium text-primary-600 hover:text-primary-500 px-4 py-2 border border-primary-300 hover:border-primary-400 transition">
+                                    <span>Chọn nhiều ảnh mới</span>
+                                    <input id="gallery_images" name="gallery_images[]" type="file" class="sr-only" accept="image/*" multiple onchange="previewGalleryImages(this)">
             </label>
-            <label class="form-label md:col-span-2">Mô tả ngắn
-                <input type="text" name="short_description" value="{{ old('short_description', $event->short_description) }}" class="form-input" placeholder="Tối đa 1-2 câu tóm tắt...">
-            </label>
-            <label class="form-label md:col-span-2">Mô tả chi tiết
-                <textarea name="description" rows="6" class="form-textarea" placeholder="Mô tả đầy đủ về sự kiện">{{ old('description', $event->description) }}</textarea>
+                                <p class="text-sm text-gray-600">hoặc kéo thả nhiều ảnh vào đây</p>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF • Tối đa 2MB mỗi ảnh</p>
+                            </div>
+                        </div>
+                    </div>
+                    @error('gallery_images')
+                        <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Cài đặt khác -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fas fa-cog text-gray-600"></i>
+                    Cài đặt khác
+                </h3>
+                
+                <div>
+                    <label for="total_capacity" class="form-label">Tổng số vé (để trống nếu không giới hạn)</label>
+                    <input type="number" min="0" name="total_capacity" id="total_capacity" value="{{ old('total_capacity', $event->total_capacity) }}" 
+                           class="form-input @error('total_capacity') border-red-500 @enderror"
+                           placeholder="Số lượng vé tối đa">
+                    @error('total_capacity')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', $event->is_active) ? 'checked' : '' }} 
+                           class="form-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="is_active" class="ml-2 block text-sm text-gray-900">
+                        Kích hoạt sự kiện
             </label>
         </div>
     </div>
 
-    <!-- Giá & Lịch -->
-    <div class="bg-white border border-gray-200 rounded-xl p-5">
-        <h3 class="font-semibold text-gray-800 mb-4">Giá & Lịch</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label class="form-label">Giá người lớn
-                <input type="number" step="0.01" name="adult_price" value="{{ old('adult_price', $event->adult_price) }}" required class="form-input">
-            </label>
-            <label class="form-label">Giá trẻ em
-                <input type="number" step="0.01" name="child_price" value="{{ old('child_price', $event->child_price) }}" required class="form-input">
-            </label>
-            <label class="form-label">Ngày bắt đầu
-                <input type="date" name="start_date" value="{{ old('start_date', optional($event->start_date)->format('Y-m-d')) }}" required class="form-input">
-            </label>
-            <label class="form-label">Ngày kết thúc
-                <input type="date" name="end_date" value="{{ old('end_date', optional($event->end_date)->format('Y-m-d')) }}" required class="form-input">
-            </label>
-            <label class="form-label">Giờ mở cửa
-                <input type="time" name="opening_time" value="{{ old('opening_time', optional($event->opening_time)->format('H:i')) }}" class="form-input">
-            </label>
-            <label class="form-label">Giờ đóng cửa
-                <input type="time" name="closing_time" value="{{ old('closing_time', optional($event->closing_time)->format('H:i')) }}" class="form-input">
-            </label>
-        </div>
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+                <a href="{{ route('admin.events.index') }}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
+                    <i class="fas fa-times"></i>
+                    Hủy
+                </a>
+                <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+                    <i class="fas fa-save"></i>
+                    Cập nhật sự kiện
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Ảnh & Tồn kho -->
-    <div class="bg-white border border-gray-200 rounded-xl p-5">
-        <h3 class="font-semibold text-gray-800 mb-4">Ảnh & Tồn kho</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label class="form-label">Ảnh đại diện (đường dẫn)
-                <input type="text" name="image" value="{{ old('image', $event->image) }}" class="form-input" placeholder="vd: vinwonders-main.jpg">
-            </label>
-            <!-- Bỏ trường tồn kho theo ngày -->
-            <label class="form-label">Tổng số vé (để trống nếu không giới hạn)
-                <input type="number" min="0" name="total_capacity" value="{{ old('total_capacity', $event->total_capacity) }}" class="form-input">
-            </label>
-            <label class="form-label md:col-span-2">Gallery (JSON array)
-                <textarea name="gallery" rows="3" class="form-textarea" placeholder='["image-1.jpg","image-2.jpg"]'>{{ old('gallery', json_encode($event->gallery)) }}</textarea>
-                <span class="form-hint">Nhập mảng JSON tên file ảnh trong thư mục <code>public/images/events</code>.</span>
-            </label>
-            <label class="inline-flex items-center gap-2 md:col-span-2">
-                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $event->is_active) ? 'checked' : '' }} class="form-checkbox">
-                <span>Kích hoạt</span>
-            </label>
-        </div>
-    </div>
+<style>
+.preview-container {
+    position: relative;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
 
-    <div class="flex items-center gap-2">
-        <button type="submit" class="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700">Cập nhật</button>
-        <a href="{{ route('admin.events.index') }}" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">Hủy</a>
-    </div>
-</form>
+.preview-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9fafb;
+    z-index: 1;
+}
+
+.preview-image {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    object-fit: cover;
+}
+</style>
+
+<script>
+function previewImage(input, previewId) {
+    const file = input.files[0];
+    if (file) {
+        console.log('File selected:', file.name);
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            console.log('File loaded, previewId:', previewId);
+            const preview = document.getElementById(previewId);
+            const img = document.getElementById(previewId + '-src');
+            const placeholder = preview ? preview.querySelector('.text-center') : null;
+            
+            console.log('Elements found:', {
+                preview: !!preview,
+                img: !!img,
+                placeholder: !!placeholder
+            });
+            
+            if (img && placeholder) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+                img.style.zIndex = '10';
+                placeholder.style.display = 'none';
+                console.log('Preview updated successfully');
+            } else {
+                console.error('Missing elements for preview');
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function previewGalleryImages(input) {
+    const files = input.files;
+    const preview = document.getElementById('preview-gallery');
+    const grid = document.getElementById('gallery-preview-grid');
+    grid.innerHTML = '';
+    
+    if (files.length > 0) {
+        preview.classList.remove('hidden');
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
+                        <img src="${e.target.result}" alt="Preview ${i + 1}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute top-2 right-2 bg-primary-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                        ${i + 1}
+                    </div>
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-eye text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"></i>
+                    </div>
+                `;
+                grid.appendChild(div);
+            };
+            
+            reader.readAsDataURL(file);
+        }
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+</script>
 @endsection
-
-

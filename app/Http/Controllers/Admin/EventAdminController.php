@@ -30,8 +30,9 @@ class EventAdminController extends Controller
             'name' => 'required|string|max:255',
             'short_description' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string|max:255',
-            'gallery' => 'nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'adult_price' => 'required|numeric|min:0',
             'child_price' => 'required|numeric|min:0',
             'location' => 'required|string|max:255',
@@ -40,13 +41,26 @@ class EventAdminController extends Controller
             'opening_time' => 'nullable|date_format:H:i',
             'closing_time' => 'nullable|date_format:H:i',
             'is_active' => 'nullable|boolean',
-            // daily_capacity removed
             'total_capacity' => 'nullable|integer|min:0',
         ]);
 
-        // cast gallery JSON nếu có
-        if ($request->filled('gallery')) {
-            $data['gallery'] = json_decode($request->input('gallery'), true) ?? [];
+        // Xử lý upload ảnh đại diện
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('images/events'), $imageName);
+            $data['image'] = 'images/events/' . $imageName;
+        }
+
+        // Xử lý upload gallery images
+        if ($request->hasFile('gallery_images')) {
+            $galleryImages = [];
+            foreach ($request->file('gallery_images') as $galleryImage) {
+                $galleryImageName = time() . '_' . uniqid() . '_' . $galleryImage->getClientOriginalName();
+                $galleryImage->move(public_path('images/events'), $galleryImageName);
+                $galleryImages[] = 'images/events/' . $galleryImageName;
+            }
+            $data['gallery'] = $galleryImages;
         }
 
         $data['is_active'] = (bool) ($data['is_active'] ?? false);
@@ -67,8 +81,9 @@ class EventAdminController extends Controller
             'name' => 'required|string|max:255',
             'short_description' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string|max:255',
-            'gallery' => 'nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'adult_price' => 'required|numeric|min:0',
             'child_price' => 'required|numeric|min:0',
             'location' => 'required|string|max:255',
@@ -77,12 +92,40 @@ class EventAdminController extends Controller
             'opening_time' => 'nullable|date_format:H:i',
             'closing_time' => 'nullable|date_format:H:i',
             'is_active' => 'nullable|boolean',
-            // daily_capacity removed
             'total_capacity' => 'nullable|integer|min:0',
         ]);
 
-        if ($request->filled('gallery')) {
-            $data['gallery'] = json_decode($request->input('gallery'), true) ?? [];
+        // Xử lý upload ảnh đại diện mới
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu có
+            if ($event->image && file_exists(public_path($event->image))) {
+                unlink(public_path($event->image));
+            }
+            
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('images/events'), $imageName);
+            $data['image'] = 'images/events/' . $imageName;
+        }
+
+        // Xử lý upload gallery images mới
+        if ($request->hasFile('gallery_images')) {
+            // Xóa ảnh gallery cũ nếu có
+            if ($event->gallery && is_array($event->gallery)) {
+                foreach ($event->gallery as $oldImage) {
+                    if (file_exists(public_path($oldImage))) {
+                        unlink(public_path($oldImage));
+                    }
+                }
+            }
+            
+            $galleryImages = [];
+            foreach ($request->file('gallery_images') as $galleryImage) {
+                $galleryImageName = time() . '_' . uniqid() . '_' . $galleryImage->getClientOriginalName();
+                $galleryImage->move(public_path('images/events'), $galleryImageName);
+                $galleryImages[] = 'images/events/' . $galleryImageName;
+            }
+            $data['gallery'] = $galleryImages;
         }
 
         $data['is_active'] = (bool) ($data['is_active'] ?? false);
