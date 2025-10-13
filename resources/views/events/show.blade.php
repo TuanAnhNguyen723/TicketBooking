@@ -229,6 +229,51 @@
             </div>
         </div>
         
+        @auth
+        <!-- Write Review -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-gradient-primary text-white border-0">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-pen-alt me-2"></i>
+                    Viết đánh giá của bạn
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                @if(session('error'))
+                    <div class="alert alert-warning">{{ session('error') }}</div>
+                @endif
+                @if($errors->any())
+                    <div class="alert alert-danger mb-3">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                <form method="POST" action="{{ route('reviews.store') }}" id="reviewForm">
+                    @csrf
+                    <input type="hidden" name="event_id" value="{{ $event->id }}">
+                    <div class="mb-3">
+                        <div class="text-warning fs-4" id="ratingStars">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="far fa-star rating-star" data-value="{{ $i }}" style="cursor: pointer;"></i>
+                            @endfor
+                        </div>
+                        <input type="hidden" name="rating" id="ratingInput" value="5">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Nhận xét (tuỳ chọn)</label>
+                        <textarea name="comment" rows="3" class="form-control" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Gửi đánh giá
+                    </button>
+                </form>
+            </div>
+        </div>
+        @endauth
+
         <!-- Reviews -->
         @if($reviews->count() > 0)
             <div class="card border-0 shadow-sm reviews-card">
@@ -815,6 +860,29 @@
                 }
             });
         });
+
+        // Rating stars interaction
+        const stars = document.querySelectorAll('#ratingStars .rating-star');
+        const ratingInput = document.getElementById('ratingInput');
+        if (stars.length && ratingInput) {
+            let current = parseInt(ratingInput.value || '5');
+            const paint = (n) => {
+                stars.forEach((s, i) => {
+                    s.classList.toggle('fas', i < n);
+                    s.classList.toggle('far', i >= n);
+                });
+            };
+            paint(current);
+            stars.forEach((star, idx) => {
+                star.addEventListener('mouseenter', () => paint(idx + 1));
+                star.addEventListener('mouseleave', () => paint(current));
+                star.addEventListener('click', () => {
+                    current = idx + 1;
+                    ratingInput.value = current;
+                    paint(current);
+                });
+            });
+        }
     });
 </script>
 @endsection
