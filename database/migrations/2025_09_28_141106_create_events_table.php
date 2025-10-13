@@ -26,6 +26,7 @@ return new class extends Migration
             $table->time('opening_time');
             $table->time('closing_time');
             $table->boolean('is_active')->default(true);
+            
             $table->timestamps();
         });
     }

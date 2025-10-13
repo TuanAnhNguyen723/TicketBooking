@@ -20,6 +20,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+        User::factory()->create([
+            'name' => 'demo',
+            'email' => 'demo@example.com',
+        ]);
+        
 
         // Seed sample events data
         $this->call(EventSeeder::class);

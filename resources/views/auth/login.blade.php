@@ -87,7 +87,7 @@
 @section('scripts')
 <script>
     function fillDemoAccount() {
-        document.getElementById('email').value = 'demo@example.com';
+        document.getElementById('email').value = 'test@example.com';
         document.getElementById('password').value = 'password';
     }
 </script>

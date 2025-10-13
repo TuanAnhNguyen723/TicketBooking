@@ -91,14 +91,26 @@
                             @endforeach
                         @endif
                     </div>
-                    @if($event->gallery && count($event->gallery) > 0)
-                        <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon"></span>
-                        </button>
-                        <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon"></span>
-                        </button>
-                    @endif
+            @if($event->gallery && count($event->gallery) > 0)
+    <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="prev">
+        <span class="position-absolute top-50 start-0 translate-middle-y bg-dark bg-opacity-50 text-white rounded-circle p-2 hover-scale">
+            <i class="bi bi-arrow-left-short fs-3"></i>
+        </span>
+    </button>
+    <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="next">
+        <span class="position-absolute top-50 end-0 translate-middle-y bg-dark bg-opacity-50 text-white rounded-circle p-2 hover-scale">
+            <i class="bi bi-arrow-right-short fs-3"></i>
+        </span>
+    </button>
+
+    <style>
+        .hover-scale:hover {
+            transform: scale(1.1);
+            transition: 0.2s;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+@endif
                 </div>
                 
                 <!-- Thumbnail Gallery -->
