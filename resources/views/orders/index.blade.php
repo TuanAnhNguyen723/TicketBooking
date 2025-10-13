@@ -42,7 +42,7 @@
                             </div>
                             <div>
                                 @if($order->status === 'paid')
-                                    <span class="badge bg-success bg-gradient fs-6 px-3 py-2">
+                                    <span class="badge bg-success bg-gradient px-2 py-1" style="font-size:.85rem;">
                                         <i class="fas fa-check-circle me-1"></i>Đã thanh toán
                                     </span>
                                 @elseif($order->status === 'pending')
@@ -73,11 +73,18 @@
                                     <div class="row mb-4 pb-4 border-bottom border-light">
                                         <div class="col-md-3">
                                             <div class="position-relative">
-                                                <img src="{{ asset('images/events/' . $event->image) }}" 
+                                                @if($event->image)
+                                                <img src="{{ asset($event->image) }}" 
                                                      class="img-fluid rounded-3 shadow-sm" 
                                                      style="height: 100px; object-fit: cover; width: 100%;"
                                                      alt="{{ $event->name }}"
                                                      onerror="this.src='https://via.placeholder.com/150x100?text=No+Image'">
+                                                @else
+                                                <img src="https://via.placeholder.com/150x100?text=No+Image" 
+                                                     class="img-fluid rounded-3 shadow-sm" 
+                                                     style="height: 100px; object-fit: cover; width: 100%;"
+                                                     alt="{{ $event->name }}">
+                                                @endif
                                                 <div class="position-absolute top-0 end-0 m-2">
                                                     <span class="badge bg-primary bg-gradient">
                                                         {{ $adultTickets + $childTickets }} vé
@@ -129,13 +136,13 @@
                                         </small>
                                     </div>
                                     
-                                    <div class="d-grid gap-3">
-                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-primary btn-lg">
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-eye me-2"></i>Xem chi tiết
                                         </a>
                                         
                                         @if($order->status === 'paid')
-                                            <button class="btn btn-success btn-lg" onclick="downloadTickets({{ $order->id }})">
+                                            <button class="btn btn-success btn-sm" onclick="downloadTickets({{ $order->id }})">
                                                 <i class="fas fa-download me-2"></i>Tải vé
                                             </button>
                                         @endif

@@ -145,7 +145,7 @@
             </div>
             <div class="card-body p-4">
                 <div class="event-description">
-                    <p class="card-text fs-5 lh-lg">{{ $event->description }}</p>
+                    <p class="card-text fs-6 lh-lg">{{ $event->description }}</p>
                 </div>
                 
                 <!-- Event Highlights -->

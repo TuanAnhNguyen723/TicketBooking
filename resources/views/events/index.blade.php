@@ -60,7 +60,7 @@
                         <div class="position-absolute top-0 end-0 m-3">
                             <span class="badge bg-success">
                                 <i class="fas fa-calendar-check me-1"></i>
-                                {{ \Carbon\Carbon::parse($event->start_date)->format('d/m') }}
+                                {{ \Carbon\Carbon::parse($event->start_date)->format('d/m') }} - {{ \Carbon\Carbon::parse($event->end_date)->format('d/m') }}
                             </span>
                         </div>
                         <div class="position-absolute bottom-0 start-0 m-3">
@@ -85,7 +85,10 @@
                             </div>
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-clock text-primary me-2"></i>
-                                <small class="text-muted">{{ $event->opening_time }} - {{ $event->closing_time }}</small>
+                                <small class="text-muted">
+                                    {{ \Carbon\Carbon::parse($event->opening_time)->format('H:i') }} - 
+                                    {{ \Carbon\Carbon::parse($event->closing_time)->format('H:i') }}
+                                </small>
                             </div>
                         </div>
                         

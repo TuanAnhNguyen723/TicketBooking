@@ -166,11 +166,18 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="position-relative">
-                                                <img src="{{ asset('images/events/' . $event->image) }}" 
+                                                @if($event->image)
+                                                <img src="{{ asset($event->image) }}" 
                                                      class="img-fluid rounded-3 shadow-sm" 
                                                      style="height: 140px; object-fit: cover; width: 100%;"
                                                      alt="{{ $event->name }}"
                                                      onerror="this.src='https://via.placeholder.com/200x140?text=No+Image'">
+                                                @else
+                                                <img src="https://via.placeholder.com/200x140?text=No+Image" 
+                                                     class="img-fluid rounded-3 shadow-sm" 
+                                                     style="height: 140px; object-fit: cover; width: 100%;"
+                                                     alt="{{ $event->name }}">
+                                                @endif
                                                 <div class="position-absolute top-0 end-0 m-2">
                                                     <span class="badge bg-primary bg-gradient">
                                                         {{ $tickets->count() }} vé
@@ -294,11 +301,11 @@
             </div>
             <div class="card-footer bg-light border-0 p-4">
                 <div class="d-flex justify-content-between align-items-center">
-                    <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                     </a>
                     @if($order->status === 'paid')
-                        <button class="btn btn-success btn-lg" onclick="downloadTickets({{ $order->id }})">
+                        <button class="btn btn-success btn-sm" onclick="downloadTickets({{ $order->id }})">
                             <i class="fas fa-download me-2"></i>Tải vé điện tử
                         </button>
                     @endif
