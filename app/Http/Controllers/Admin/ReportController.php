@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Ticket;
+use App\Models\Event;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -21,6 +22,7 @@ class ReportController extends Controller
         $startDate = $request->get('start_date', Carbon::now()->startOfMonth());
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth());
         $ticketType = $request->get('ticket_type', 'all'); // all, adult, child
+        $location = $request->get('location', 'all');
 
         // Chuyển đổi chuỗi ngày thành Carbon instance nếu cần
         if (is_string($startDate)) {
@@ -30,38 +32,30 @@ class ReportController extends Controller
             $endDate = Carbon::parse($endDate);
         }
 
-        // Query cơ bản cho orders
-        $query = Order::where('status', 'paid')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->with(['tickets' => function($q) use ($ticketType) {
-                if ($ticketType !== 'all') {
-                    $q->where('type', $ticketType);
-                }
-            }]);
-
-        // Tính tổng doanh thu
-        $totalRevenue = $query->get()->sum(function($order) {
-            return $order->tickets->sum(function($ticket) {
-                return $ticket->price * $ticket->quantity;
+        // Tổng hợp theo bộ lọc (dựa trên tickets + events)
+        $baseTickets = DB::table('tickets')
+            ->join('orders', 'tickets.order_id', '=', 'orders.id')
+            ->join('events', 'tickets.event_id', '=', 'events.id')
+            ->where('orders.status', 'paid')
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
+            ->when($ticketType !== 'all', function($q) use ($ticketType) {
+                $q->where('tickets.type', $ticketType);
+            })
+            ->when($location !== 'all', function($q) use ($location) {
+                $q->where('events.location', $location);
             });
-        });
+
+        $totalRevenue = (clone $baseTickets)->sum(DB::raw('tickets.price * tickets.quantity'));
 
         // Tính doanh thu theo khoảng thời gian
-        $revenueData = $this->getRevenueByPeriod($period, $startDate, $endDate, $ticketType);
+        $revenueData = $this->getRevenueByPeriod($period, $startDate, $endDate, $ticketType, $location);
 
         // Lấy thống kê tổng quan
-        $totalOrders = Order::where('status', 'paid')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->count();
+        $totalOrders = (clone $baseTickets)->distinct('orders.id')->count('orders.id');
 
-        $totalTickets = Ticket::whereHas('order', function($q) use ($startDate, $endDate) {
-                $q->where('status', 'paid')
-                  ->whereBetween('created_at', [$startDate, $endDate]);
-            })
-            ->when($ticketType !== 'all', function($q) use ($ticketType) {
-                $q->where('type', $ticketType);
-            })
-            ->sum('quantity');
+        $totalTickets = (clone $baseTickets)->sum('tickets.quantity');
+
+        $locations = Event::query()->select('location')->distinct()->orderBy('location')->pluck('location');
 
         return view('admin.reports.revenue-by-time', compact(
             'revenueData',
@@ -71,22 +65,28 @@ class ReportController extends Controller
             'period',
             'startDate',
             'endDate',
-            'ticketType'
+            'ticketType',
+            'location',
+            'locations'
         ));
     }
 
     /**
      * Lấy dữ liệu doanh thu theo khoảng thời gian
      */
-    private function getRevenueByPeriod($period, $startDate, $endDate, $ticketType)
+    private function getRevenueByPeriod($period, $startDate, $endDate, $ticketType, $location)
     {
         $query = DB::table('orders')
             ->join('tickets', 'orders.id', '=', 'tickets.order_id')
+            ->join('events', 'tickets.event_id', '=', 'events.id')
             ->where('orders.status', 'paid')
             ->whereBetween('orders.created_at', [$startDate, $endDate]);
 
         if ($ticketType !== 'all') {
             $query->where('tickets.type', $ticketType);
+        }
+        if ($location !== 'all') {
+            $query->where('events.location', $location);
         }
 
         switch ($period) {
@@ -139,6 +139,7 @@ class ReportController extends Controller
         $startDate = $request->get('start_date', Carbon::now()->startOfMonth());
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth());
         $ticketType = $request->get('ticket_type', 'all');
+        $location = $request->get('location', 'all');
 
         if (is_string($startDate)) {
             $startDate = Carbon::parse($startDate);
@@ -147,7 +148,7 @@ class ReportController extends Controller
             $endDate = Carbon::parse($endDate);
         }
 
-        $data = $this->getRevenueByPeriod($period, $startDate, $endDate, $ticketType);
+        $data = $this->getRevenueByPeriod($period, $startDate, $endDate, $ticketType, $location);
 
         return response()->json([
             'labels' => $data->pluck('date'),

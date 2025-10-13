@@ -174,7 +174,10 @@
                                 </div>
                                 <div>
                                     <h6 class="mb-1 fw-bold">Giờ mở cửa</h6>
-                                    <p class="mb-0 text-muted">{{ $event->opening_time }} - {{ $event->closing_time }}</p>
+                                    <p class="mb-0 text-muted">
+                                        {{ \Carbon\Carbon::parse($event->opening_time)->format('H:i') }} - 
+                                        {{ \Carbon\Carbon::parse($event->closing_time)->format('H:i') }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -342,7 +345,10 @@
                             <i class="fas fa-clock me-2 text-success"></i>
                             <div>
                                 <small class="text-muted">Giờ mở cửa</small>
-                                <p class="mb-0 fw-medium">{{ $event->opening_time }} - {{ $event->closing_time }}</p>
+                                <p class="mb-0 fw-medium">
+                                    {{ \Carbon\Carbon::parse($event->opening_time)->format('H:i') }} - 
+                                    {{ \Carbon\Carbon::parse($event->closing_time)->format('H:i') }}
+                                </p>
                             </div>
                         </div>
                     </div>

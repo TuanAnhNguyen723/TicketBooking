@@ -17,10 +17,10 @@
     
     <!-- Bộ lọc -->
     <div class="bg-white rounded-xl border border-gray-200 p-6">
-        <form method="GET" action="{{ route('admin.reports.revenue-by-time') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form method="GET" action="{{ route('admin.reports.revenue-by-time') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div>
-                <label for="period" class="form-label">Khoảng thời gian</label>
-                <select name="period" id="period" class="form-select">
+                <label for="period" class="form-label text-sm">Khoảng thời gian</label>
+                <select name="period" id="period" class="form-select text-sm h-10 py-2">
                     <option value="day" {{ $period == 'day' ? 'selected' : '' }}>Theo ngày</option>
                     <option value="month" {{ $period == 'month' ? 'selected' : '' }}>Theo tháng</option>
                     <option value="year" {{ $period == 'year' ? 'selected' : '' }}>Theo năm</option>
@@ -28,32 +28,45 @@
             </div>
             
             <div>
-                <label for="start_date" class="form-label">Từ ngày</label>
-                <input type="date" name="start_date" id="start_date" class="form-input" 
+                <label for="start_date" class="form-label text-sm">Từ ngày</label>
+                <input type="date" name="start_date" id="start_date" class="form-input text-sm h-10 py-2" 
                        value="{{ $startDate->format('Y-m-d') }}">
             </div>
             
             <div>
-                <label for="end_date" class="form-label">Đến ngày</label>
-                <input type="date" name="end_date" id="end_date" class="form-input" 
+                <label for="end_date" class="form-label text-sm">Đến ngày</label>
+                <input type="date" name="end_date" id="end_date" class="form-input text-sm h-10 py-2" 
                        value="{{ $endDate->format('Y-m-d') }}">
             </div>
             
             <div>
-                <label for="ticket_type" class="form-label">Loại vé</label>
-                <select name="ticket_type" id="ticket_type" class="form-select">
+                <label for="ticket_type" class="form-label text-sm">Loại vé</label>
+                <select name="ticket_type" id="ticket_type" class="form-select text-sm h-10 py-2">
                     <option value="all" {{ $ticketType == 'all' ? 'selected' : '' }}>Tất cả</option>
                     <option value="adult" {{ $ticketType == 'adult' ? 'selected' : '' }}>Người lớn</option>
                     <option value="child" {{ $ticketType == 'child' ? 'selected' : '' }}>Trẻ em</option>
                 </select>
             </div>
+
+            <div>
+                <label for="location" class="form-label text-sm">Địa điểm</label>
+                <select name="location" id="location" class="form-select text-sm h-10 py-2">
+                    <option value="all" {{ ($location ?? 'all') == 'all' ? 'selected' : '' }}>Tất cả</option>
+                    @php
+                        $locations = $locations ?? \App\Models\Event::query()->select('location')->distinct()->orderBy('location')->pluck('location');
+                    @endphp
+                    @foreach($locations as $loc)
+                        <option value="{{ $loc }}" {{ ($location ?? 'all') == $loc ? 'selected' : '' }}>{{ $loc }}</option>
+                    @endforeach
+                </select>
+            </div>
             
-            <div class="md:col-span-4 flex gap-3">
-                <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+            <div class="sm:col-span-2 lg:col-span-5 flex flex-wrap gap-2 mt-1">
+                <button type="submit" class="bg-primary-600 text-white px-3 py-2 text-sm rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
                     <i class="fas fa-filter"></i>
                     Lọc dữ liệu
                 </button>
-                <a href="{{ route('admin.reports.revenue-by-time') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
+                <a href="{{ route('admin.reports.revenue-by-time') }}" class="bg-gray-600 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
                     <i class="fas fa-sync-alt"></i>
                     Làm mới
                 </a>
@@ -190,7 +203,8 @@ window.chartConfig = {
     period: '{{ $period }}',
     startDate: '{{ $startDate->format("Y-m-d") }}',
     endDate: '{{ $endDate->format("Y-m-d") }}',
-    ticketType: '{{ $ticketType }}'
+    ticketType: '{{ $ticketType }}',
+    location: '{{ $location ?? 'all' }}'
 };
 </script>
 <script src="{{ asset('js/revenue-chart.js') }}"></script>

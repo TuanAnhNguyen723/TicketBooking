@@ -2,10 +2,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.chartConfig !== 'undefined') {
         // Tạo URL với parameters
         var chartUrl = window.chartConfig.url;
-        var params = 'period=' + window.chartConfig.period + 
-                    '&start_date=' + window.chartConfig.startDate + 
-                    '&end_date=' + window.chartConfig.endDate + 
-                    '&ticket_type=' + window.chartConfig.ticketType;
+        var params = 'period=' + encodeURIComponent(window.chartConfig.period) + 
+                    '&start_date=' + encodeURIComponent(window.chartConfig.startDate) + 
+                    '&end_date=' + encodeURIComponent(window.chartConfig.endDate) + 
+                    '&ticket_type=' + encodeURIComponent(window.chartConfig.ticketType) +
+                    '&location=' + encodeURIComponent(window.chartConfig.location || 'all');
         
         // Lấy dữ liệu cho biểu đồ
         fetch(chartUrl + '?' + params)
