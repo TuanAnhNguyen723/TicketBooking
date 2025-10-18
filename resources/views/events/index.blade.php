@@ -29,17 +29,16 @@
                 <div class="card event-card h-100 border-0 shadow-sm">
                     <div class="position-relative overflow-hidden">
                         @if($event->image)
-                        <img src="{{ asset($event->image) }}" 
+                        @php
+                            $homeImagePath = $event->image;
+                            if (!str_starts_with($homeImagePath, 'images/events/')) {
+                                $homeImagePath = 'images/events/' . $homeImagePath;
+                            }
+                        @endphp
+                        <img src="{{ asset($homeImagePath) }}" 
                              class="card-img-top event-image" 
                              alt="{{ $event->name }}"
-                             onerror="this.src='https://via.placeholder.com/400x220?text=No+Image'">
-                        @else
-                        <div class="card-img-top event-image bg-gray-200 d-flex align-items-center justify-content-center" style="height: 220px;">
-                            <div class="text-center text-muted">
-                                <i class="fas fa-image fa-3x mb-2"></i>
-                                <p class="mb-0">Chưa có ảnh</p>
-                            </div>
-                        </div>
+                             onerror="this.style.display='none';">
                         @endif
                         @php
                             $remainingTotal = null;

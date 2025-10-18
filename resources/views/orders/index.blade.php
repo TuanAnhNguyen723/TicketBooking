@@ -78,12 +78,14 @@
                                                      class="img-fluid rounded-3 shadow-sm" 
                                                      style="height: 100px; object-fit: cover; width: 100%;"
                                                      alt="{{ $event->name }}"
-                                                     onerror="this.src='https://via.placeholder.com/150x100?text=No+Image'">
+                                                     onerror="this.style.display='none';">
                                                 @else
-                                                <img src="https://via.placeholder.com/150x100?text=No+Image" 
-                                                     class="img-fluid rounded-3 shadow-sm" 
-                                                     style="height: 100px; object-fit: cover; width: 100%;"
-                                                     alt="{{ $event->name }}">
+                                                <div class="img-fluid rounded-3 shadow-sm bg-gray-200 d-flex align-items-center justify-content-center" style="height: 100px;">
+                                                    <div class="text-center text-muted">
+                                                        <i class="fas fa-image fa-lg mb-1"></i>
+                                                        <p class="mb-0 small">Chưa có ảnh</p>
+                                                    </div>
+                                                </div>
                                                 @endif
                                                 <div class="position-absolute top-0 end-0 m-2">
                                                     <span class="badge bg-primary bg-gradient">
@@ -142,7 +144,7 @@
                                         </a>
                                         
                                         @if($order->status === 'paid')
-                                            <button class="btn btn-success btn-sm" onclick="downloadTickets({{ $order->id }})">
+                                            <button class="btn btn-success btn-sm" data-order-id="{{ $order->id }}" onclick="downloadTickets(this.dataset.orderId)">
                                                 <i class="fas fa-download me-2"></i>Tải vé
                                             </button>
                                         @endif

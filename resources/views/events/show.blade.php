@@ -49,22 +49,23 @@
                 </h5>
             </div>
             <div class="card-body p-0">
+                @if($event->image || ($event->gallery && is_array($event->gallery) && count($event->gallery) > 0))
+                <!-- Hiển thị carousel khi có ảnh -->
                 <div id="eventCarousel" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner">
                         <div class="carousel-item active">
                             <div class="position-relative">
                                 @if($event->image)
-                                <img src="{{ asset($event->image) }}" 
+                                @php
+                                    $imagePath = $event->image;
+                                    if (!str_starts_with($imagePath, 'images/events/')) {
+                                        $imagePath = 'images/events/' . $imagePath;
+                                    }
+                                @endphp
+                                <img src="{{ asset($imagePath) }}" 
                                      class="d-block w-100 event-main-image" 
                                      alt="{{ $event->name }}"
-                                     onerror="this.src='https://via.placeholder.com/800x500?text=No+Image'">
-                                @else
-                                <div class="d-block w-100 event-main-image bg-gray-200 d-flex align-items-center justify-content-center">
-                                    <div class="text-center text-muted">
-                                        <i class="fas fa-image fa-5x mb-3"></i>
-                                        <h5>Chưa có ảnh</h5>
-                                    </div>
-                                </div>
+                                     onerror="this.style.display='none';">
                                 @endif
                                 <div class="position-absolute top-0 end-0 m-3">
                                     <span class="badge bg-primary bg-gradient fs-6 px-3 py-2">
@@ -73,14 +74,21 @@
                                 </div>
                             </div>
                         </div>
-                        @if($event->gallery)
+                        @if($event->gallery && is_array($event->gallery) && count($event->gallery) > 0)
                             @foreach($event->gallery as $index => $image)
+                                @if($image && !empty($image))
+                                @php
+                                    $galleryImagePath = $image;
+                                    if (!str_starts_with($galleryImagePath, 'images/events/')) {
+                                        $galleryImagePath = 'images/events/' . $galleryImagePath;
+                                    }
+                                @endphp
                                 <div class="carousel-item">
                                     <div class="position-relative">
-                                        <img src="{{ asset($image) }}" 
+                                        <img src="{{ asset($galleryImagePath) }}" 
                                              class="d-block w-100 event-main-image" 
                                              alt="{{ $event->name }}"
-                                             onerror="this.src='https://via.placeholder.com/800x500?text=No+Image'">
+                                             onerror="this.style.display='none';">
                                         <div class="position-absolute top-0 end-0 m-3">
                                             <span class="badge bg-success bg-gradient fs-6 px-3 py-2">
                                                 <i class="fas fa-image me-1"></i>{{ $index + 2 }}
@@ -88,61 +96,120 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             @endforeach
                         @endif
                     </div>
-            @if($event->gallery && count($event->gallery) > 0)
-    <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="prev">
-        <span class="position-absolute top-50 start-0 translate-middle-y bg-dark bg-opacity-50 text-white rounded-circle p-2 hover-scale">
-            <i class="bi bi-arrow-left-short fs-3"></i>
-        </span>
-    </button>
-    <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="next">
-        <span class="position-absolute top-50 end-0 translate-middle-y bg-dark bg-opacity-50 text-white rounded-circle p-2 hover-scale">
-            <i class="bi bi-arrow-right-short fs-3"></i>
-        </span>
-    </button>
+                @endif
+                @if($event->gallery && is_array($event->gallery) && count($event->gallery) > 0)
+                <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="prev">
+                    <span class="bg-primary text-white rounded-circle hover-scale d-flex align-items-center justify-content-center">
+                        <i class="fas fa-chevron-left fs-4"></i>
+                    </span>
+                </button>
+                <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#eventCarousel" data-bs-slide="next">
+                    <span class="bg-primary text-white rounded-circle hover-scale d-flex align-items-center justify-content-center">
+                        <i class="fas fa-chevron-right fs-4"></i>
+                    </span>
+                </button>
+                @endif
 
     <style>
-        .hover-scale:hover {
-            transform: scale(1.1);
-            transition: 0.2s;
-            background-color: rgba(0, 0, 0, 0.7);
+        .custom-carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            z-index: 10;
+        }
+        
+        .custom-carousel-control .hover-scale {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.9) !important;
+            border: 2px solid white;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+        
+        .custom-carousel-control:hover .hover-scale {
+            transform: scale(1.15);
+            background-color: rgba(13, 110, 253, 1) !important;
+            opacity: 1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .custom-carousel-control .fas {
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .carousel-control-prev {
+            left: 15px;
+        }
+        
+        .carousel-control-next {
+            right: 15px;
+        }
+        
+        /* Đảm bảo nút được căn giữa hoàn hảo */
+        .custom-carousel-control .hover-scale {
+            position: relative;
+            top: 0;
+            left: 0;
+            transform: none;
         }
     </style>
-@endif
                 </div>
                 
-                <!-- Thumbnail Gallery -->
-                @if($event->gallery && count($event->gallery) > 0)
-                    <div class="p-3">
-                        <div class="row g-2">
-                            <div class="col-3">
-                                <div class="thumbnail-item active" data-bs-target="#eventCarousel" data-bs-slide-to="0">
-                                    @if($event->image)
-                                    <img src="{{ asset($event->image) }}" 
-                                         class="img-fluid rounded thumbnail-img" 
-                                         alt="Thumbnail 1"
-                                         onerror="this.src='https://via.placeholder.com/150x100?text=No+Image'">
-                                    @else
-                                    <div class="img-fluid rounded thumbnail-img bg-gray-200 d-flex align-items-center justify-content-center">
-                                        <i class="fas fa-image text-gray-400"></i>
-                                    </div>
-                                    @endif
+                <!-- Thumbnail Gallery - chỉ hiển thị khi có ảnh -->
+                @if($event->image || ($event->gallery && is_array($event->gallery) && count($event->gallery) > 0))
+                <div class="p-3">
+                    <div class="row g-2">
+                        <div class="col-3">
+                            <div class="thumbnail-item active" data-bs-target="#eventCarousel" data-bs-slide-to="0">
+                                @if($event->image)
+                                @php
+                                    $thumbnailImagePath = $event->image;
+                                    if (!str_starts_with($thumbnailImagePath, 'images/events/')) {
+                                        $thumbnailImagePath = 'images/events/' . $thumbnailImagePath;
+                                    }
+                                @endphp
+                                <img src="{{ asset($thumbnailImagePath) }}" 
+                                     class="img-fluid rounded thumbnail-img" 
+                                     alt="Thumbnail 1"
+                                     onerror="this.style.display='none';">
+                                @else
+                                <div class="img-fluid rounded thumbnail-img bg-gray-200 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-image text-gray-400"></i>
                                 </div>
+                                @endif
                             </div>
+                        </div>
+                        @if($event->gallery && is_array($event->gallery) && count($event->gallery) > 0)
                             @foreach($event->gallery as $index => $image)
+                                @if($image && !empty($image))
                                 <div class="col-3">
                                     <div class="thumbnail-item" data-bs-target="#eventCarousel" data-bs-slide-to="{{ $index + 1 }}">
-                                        <img src="{{ asset($image) }}" 
+                                        @php
+                                            $galleryThumbnailPath = $image;
+                                            if (!str_starts_with($galleryThumbnailPath, 'images/events/')) {
+                                                $galleryThumbnailPath = 'images/events/' . $galleryThumbnailPath;
+                                            }
+                                        @endphp
+                                        <img src="{{ asset($galleryThumbnailPath) }}" 
                                              class="img-fluid rounded thumbnail-img" 
                                              alt="Thumbnail {{ $index + 2 }}"
-                                             onerror="this.src='https://via.placeholder.com/150x100?text=No+Image'">
+                                             onerror="this.style.display='none';">
                                     </div>
                                 </div>
+                                @endif
                             @endforeach
-                        </div>
+                        @endif
                     </div>
+                </div>
                 @endif
             </div>
         </div>
@@ -775,8 +842,8 @@
         const adultSelect = document.querySelector('#adult_quantity');
         const childSelect = document.querySelector('#child_quantity');
         const totalPriceElement = document.querySelector('#total_price');
-        const adultPrice = {{ $event->adult_price }};
-        const childPrice = {{ $event->child_price }};
+        const adultPrice = parseFloat('{{ $event->adult_price }}');
+        const childPrice = parseFloat('{{ $event->child_price }}');
         
         async function fetchAvailability() {
             const dateInput = document.querySelector('#visit_date');

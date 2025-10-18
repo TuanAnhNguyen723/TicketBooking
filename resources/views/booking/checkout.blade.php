@@ -42,7 +42,7 @@
                                      class="img-fluid rounded-3 shadow-sm" 
                                      style="height: 100px; object-fit: cover; width: 100%;"
                                      alt="{{ $item['event_name'] }}"
-                                     onerror="this.src='https://via.placeholder.com/150x100?text=No+Image'">
+                                     onerror="this.style.display='none';">
                                 <div class="position-absolute top-0 end-0 m-2">
                                     <span class="badge bg-primary bg-gradient">
                                         {{ $item['adult_quantity'] + $item['child_quantity'] }} vé

@@ -32,7 +32,7 @@
                         <div class="event-image">
                             <img src="{{ asset('images/events/' . $item['event_image']) }}" 
                                  alt="{{ $item['event_name'] }}"
-                                 onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                                 onerror="this.style.display='none';">
                             <div class="ticket-badge">
                                 <span>{{ $item['adult_quantity'] + $item['child_quantity'] }} vé</span>
                             </div>

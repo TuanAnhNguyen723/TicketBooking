@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserAdminController extends Controller
 {
@@ -34,7 +35,7 @@ class UserAdminController extends Controller
         ]);
 
         if (!empty($data['password'])) {
-            // Sử dụng cast hashed của User
+            $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
         }
