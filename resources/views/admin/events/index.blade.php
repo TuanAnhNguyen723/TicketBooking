@@ -14,6 +14,7 @@
                 <tr class="bg-gray-50 text-left">
                     <th class="py-3 px-4 text-gray-500 font-semibold">#</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Tên</th>
+                    <th class="py-3 px-4 text-gray-500 font-semibold">Loại</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Khoảng ngày</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Giá (NL/TE)</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Trạng thái</th>
@@ -40,6 +41,12 @@
                                     <div class="text-sm text-gray-500">{{ $event->location }}</div>
                                 </div>
                             </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center rounded-full {{ $event->category == 'event' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }} px-2.5 py-0.5 text-xs font-medium">
+                                <i class="fas {{ $event->category == 'event' ? 'fa-calendar' : 'fa-map-marker-alt' }} me-1"></i>
+                                {{ $event->category_name }}
+                            </span>
                         </td>
                         <td class="py-3 px-4">{{ $event->start_date }} → {{ $event->end_date }}</td>
                         <td class="py-3 px-4">{{ number_format($event->adult_price) }}₫ / {{ number_format($event->child_price) }}₫</td>

@@ -28,6 +28,7 @@ class EventAdminController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
+            'category' => 'required|in:event,attraction',
             'short_description' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -79,6 +80,7 @@ class EventAdminController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
+            'category' => 'required|in:event,attraction',
             'short_description' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

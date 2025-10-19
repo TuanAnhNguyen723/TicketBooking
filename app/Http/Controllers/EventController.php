@@ -18,7 +18,22 @@ class EventController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(6);
 
-        return view('events.index', compact('events'));
+        // Tách thành 2 loại
+        $featuredEvents = Event::where('is_active', true)
+            ->where('end_date', '>=', now()->toDateString())
+            ->where('category', 'event')
+            ->orderBy('created_at', 'desc')
+            ->take(12)
+            ->get();
+
+        $attractions = Event::where('is_active', true)
+            ->where('end_date', '>=', now()->toDateString())
+            ->where('category', 'attraction')
+            ->orderBy('created_at', 'desc')
+            ->take(12)
+            ->get();
+
+        return view('events.index', compact('events', 'featuredEvents', 'attractions'));
     }
 
     /**

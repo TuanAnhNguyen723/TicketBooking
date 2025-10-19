@@ -9,6 +9,7 @@ class Event extends Model
 {
     protected $fillable = [
         'name',
+        'category',
         'description',
         'short_description',
         'image',
@@ -20,8 +21,8 @@ class Event extends Model
         'end_date',
         'opening_time',
         'closing_time',
-        'is_active'
-        , 'total_capacity'
+        'is_active',
+        'total_capacity'
     ];
 
     protected $casts = [
@@ -49,5 +50,26 @@ class Event extends Model
     public function getAverageRatingAttribute()
     {
         return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    // Phương thức để lấy tên category bằng tiếng Việt
+    public function getCategoryNameAttribute()
+    {
+        return match($this->category) {
+            'event' => 'Sự kiện & Lễ hội',
+            'attraction' => 'Địa điểm du lịch',
+            default => 'Không xác định'
+        };
+    }
+
+    // Scope để lọc theo category
+    public function scopeEvents($query)
+    {
+        return $query->where('category', 'event');
+    }
+
+    public function scopeAttractions($query)
+    {
+        return $query->where('category', 'attraction');
     }
 }

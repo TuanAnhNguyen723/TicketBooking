@@ -39,6 +39,21 @@
                     </div>
                     
                     <div>
+                        <label for="category" class="form-label">Loại <span class="text-red-500">*</span></label>
+                        <select name="category" id="category" required 
+                                class="form-input @error('category') border-red-500 @enderror">
+                            <option value="">Chọn loại</option>
+                            <option value="event" {{ old('category') == 'event' ? 'selected' : '' }}>Sự kiện & Lễ hội</option>
+                            <option value="attraction" {{ old('category') == 'attraction' ? 'selected' : '' }}>Địa điểm du lịch</option>
+                        </select>
+                        @error('category')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
                         <label for="location" class="form-label">Địa điểm <span class="text-red-500">*</span></label>
                         <input type="text" name="location" id="location" value="{{ old('location') }}" required 
                                class="form-input @error('location') border-red-500 @enderror"

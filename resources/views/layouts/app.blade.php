@@ -827,11 +827,6 @@
                             <i class="fas fa-shopping-bag me-1"></i>Đơn hàng của tôi
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#events">
-                            <i class="fas fa-calendar-alt me-1"></i>Sự kiện
-                        </a>
-                    </li>
                 </ul>
                 
                 <ul class="navbar-nav">
@@ -1044,6 +1039,40 @@
             showToast('{{ session('info') }}', 'info');
         @endif
     </script>
+    
+    <style>
+    .price-tag {
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        border: none;
+    }
+    
+    .event-image {
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .event-card:hover .event-image {
+        transform: scale(1.05);
+    }
+    
+    .event-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    </style>
     
     @yield('scripts')
 </body>
