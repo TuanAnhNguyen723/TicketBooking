@@ -15,7 +15,6 @@
                     <th class="py-3 px-4 text-gray-500 font-semibold">#</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Tên</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Loại</th>
-                    <th class="py-3 px-4 text-gray-500 font-semibold">Khoảng ngày</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Giá (NL/TE)</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Trạng thái</th>
                     <th class="py-3 px-4 text-gray-500 font-semibold">Hành động</th>
@@ -55,7 +54,6 @@
                             </span>
                             @endif
                         </td>
-                        <td class="py-3 px-4">{{ $event->start_date }} → {{ $event->end_date }}</td>
                         <td class="py-3 px-4">{{ number_format($event->adult_price) }}₫ / {{ number_format($event->child_price) }}₫</td>
                         <td class="py-3 px-4">
                             @if ($event->is_active)
