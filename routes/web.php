@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\TicketAdminController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Admin\ReviewAdminController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Api\WeatherController;
 
 // Trang chủ - hiển thị danh sách sự kiện
 Route::get('/', [EventController::class, 'index'])->name('home');
@@ -111,4 +112,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/revenue-by-time', [ReportController::class, 'revenueByTime'])->name('revenue-by-time');
         Route::get('/revenue-chart-data', [ReportController::class, 'getRevenueChartData'])->name('revenue-chart-data');
     });
+});
+
+// API Routes
+Route::prefix('api')->group(function () {
+    Route::get('/weather-forecast', [WeatherController::class, 'getWeather'])->name('api.weather');
 });

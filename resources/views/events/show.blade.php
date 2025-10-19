@@ -2,6 +2,29 @@
 
 @section('title', $event->name . ' - Chi tiết sự kiện')
 
+@push('styles')
+<style>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.weather-info {
+    transition: all 0.3s ease;
+}
+
+.weather-info.show {
+    animation: fadeIn 0.5s ease-in;
+}
+</style>
+@endpush
+
 @section('content')
 <!-- Page Header -->
 <div class="row mb-4">
@@ -518,6 +541,25 @@
                             <div class="form-text" id="availability_help"></div>
                         </div>
                         
+                        <!-- Weather Information -->
+                        <div id="weather-info" class="mb-3 weather-info" style="display: none;">
+                            <div class="alert alert-info d-flex align-items-center" role="alert">
+                                <div class="me-3">
+                                    <i class="fas fa-cloud-sun fa-2x text-info"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading mb-1">
+                                        <span id="weather-date"></span>
+                                    </h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span id="weather-temp" class="fw-bold me-3"></span>
+                                        <span id="weather-desc" class="text-muted"></span>
+                                    </div>
+                                    <div id="weather-advice" class="small"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row mb-3">
                             <div class="col-6">
                                 <label class="form-label fw-medium">
@@ -937,6 +979,133 @@
                 bookingBtn.disabled = false;
             }, 3000);
         });
+        
+        // Weather functionality with debounce
+        const visitDateInput = document.getElementById('visit_date');
+        const weatherInfo = document.getElementById('weather-info');
+        let weatherTimeout = null;
+        
+        if (visitDateInput && weatherInfo) {
+            visitDateInput.addEventListener('change', function() {
+                const selectedDate = this.value;
+                console.log('Date selected:', selectedDate);
+                
+                // Clear previous timeout
+                if (weatherTimeout) {
+                    clearTimeout(weatherTimeout);
+                }
+                
+                if (selectedDate) {
+                    // Show loading immediately with better animation
+                    weatherInfo.style.display = 'block';
+                    weatherInfo.classList.add('show');
+                    weatherInfo.innerHTML = `
+                        <div class="alert alert-info d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="spinner-border spinner-border-sm text-info" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="alert-heading mb-1">Đang tải thông tin thời tiết...</h6>
+                                <div class="small text-muted">Vui lòng chờ trong giây lát</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Debounce: Wait 1.5 seconds before making API call
+                    weatherTimeout = setTimeout(() => {
+                        fetchWeatherData(selectedDate);
+                    }, 1500);
+                } else {
+                    weatherInfo.style.display = 'none';
+                    weatherInfo.classList.remove('show');
+                }
+            });
+        }
+        
+        function fetchWeatherData(selectedDate) {
+            // Validate date before making API call
+            const today = new Date().toISOString().split('T')[0];
+            if (selectedDate < today) {
+                weatherInfo.innerHTML = '<div class="alert alert-warning">Vui lòng chọn ngày từ hôm nay trở đi</div>';
+                return;
+            }
+            
+            const apiUrl = `${window.location.origin}/api/weather-forecast?date=${selectedDate}&city={{ $event->location }}`;
+            console.log('API URL:', apiUrl);
+            
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        console.warn('Response is not JSON, content-type:', contentType);
+                        return response.text().then(text => {
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                throw new Error('Response is not valid JSON');
+                            }
+                        });
+                    }
+                    
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Weather data:', data);
+                    if (data.success) {
+                        const weather = data.data;
+                        const dateObj = new Date(selectedDate);
+                        const formattedDate = dateObj.toLocaleDateString('vi-VN', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        
+                        weatherInfo.innerHTML = `
+                            <div class="alert alert-${weather.advice.color} d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-cloud-sun fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">${formattedDate}</h6>
+                                    <div class="mb-2">
+                                        <span class="fw-bold me-3">${weather.temperature}°C</span>
+                                        <span class="text-muted">${weather.description}</span>
+                                    </div>
+                                    <div class="small">${weather.advice.message}</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        weatherInfo.innerHTML = '<div class="alert alert-warning">Không thể lấy thông tin thời tiết</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Weather error:', error);
+                    weatherInfo.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h6>Lỗi kết nối</h6>
+                            <p class="mb-0">${error.message}</p>
+                            <small class="text-muted">Vui lòng thử lại sau</small>
+                        </div>
+                    `;
+                });
+        }
         
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
