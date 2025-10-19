@@ -47,6 +47,13 @@
                                 <i class="fas {{ $event->category == 'event' ? 'fa-calendar' : 'fa-map-marker-alt' }} me-1"></i>
                                 {{ $event->category_name }}
                             </span>
+                            @if($event->category == 'event' && $event->status_name)
+                            <br>
+                            <span class="inline-flex items-center rounded-full bg-{{ $event->status_color }}-100 text-{{ $event->status_color }}-800 px-2.5 py-0.5 text-xs font-medium mt-1">
+                                <i class="fas {{ $event->status == 'upcoming' ? 'fa-clock' : ($event->status == 'ongoing' ? 'fa-play' : 'fa-stop') }} me-1"></i>
+                                {{ $event->status_name }}
+                            </span>
+                            @endif
                         </td>
                         <td class="py-3 px-4">{{ $event->start_date }} → {{ $event->end_date }}</td>
                         <td class="py-3 px-4">{{ number_format($event->adult_price) }}₫ / {{ number_format($event->child_price) }}₫</td>

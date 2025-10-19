@@ -26,7 +26,7 @@ class EventAdminController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'category' => 'required|in:event,attraction',
             'short_description' => 'nullable|string|max:255',
@@ -37,13 +37,22 @@ class EventAdminController extends Controller
             'adult_price' => 'required|numeric|min:0',
             'child_price' => 'required|numeric|min:0',
             'location' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
             'opening_time' => 'nullable|date_format:H:i',
             'closing_time' => 'nullable|date_format:H:i',
             'is_active' => 'nullable|boolean',
             'total_capacity' => 'nullable|integer|min:0',
-        ]);
+        ];
+
+        // Chỉ validate ngày khi là sự kiện
+        if ($request->category === 'event') {
+            $rules['start_date'] = 'required|date';
+            $rules['end_date'] = 'required|date|after_or_equal:start_date';
+        } else {
+            $rules['start_date'] = 'nullable|date';
+            $rules['end_date'] = 'nullable|date';
+        }
+
+        $data = $request->validate($rules);
 
         // Xử lý upload ảnh đại diện
         if ($request->hasFile('image')) {
@@ -78,7 +87,7 @@ class EventAdminController extends Controller
 
     public function update(Request $request, Event $event)
     {
-        $data = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'category' => 'required|in:event,attraction',
             'short_description' => 'nullable|string|max:255',
@@ -89,13 +98,22 @@ class EventAdminController extends Controller
             'adult_price' => 'required|numeric|min:0',
             'child_price' => 'required|numeric|min:0',
             'location' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
             'opening_time' => 'nullable|date_format:H:i',
             'closing_time' => 'nullable|date_format:H:i',
             'is_active' => 'nullable|boolean',
             'total_capacity' => 'nullable|integer|min:0',
-        ]);
+        ];
+
+        // Chỉ validate ngày khi là sự kiện
+        if ($request->category === 'event') {
+            $rules['start_date'] = 'required|date';
+            $rules['end_date'] = 'required|date|after_or_equal:start_date';
+        } else {
+            $rules['start_date'] = 'nullable|date';
+            $rules['end_date'] = 'nullable|date';
+        }
+
+        $data = $request->validate($rules);
 
         // Xử lý upload ảnh đại diện mới
         if ($request->hasFile('image')) {

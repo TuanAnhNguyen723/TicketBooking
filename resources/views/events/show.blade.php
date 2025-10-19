@@ -28,6 +28,14 @@
                     <i class="fas fa-map-marker-alt me-2 text-primary"></i>
                     {{ $event->location }}
                 </p>
+                @if($event->category == 'event' && $event->status_name)
+                <div class="mt-2">
+                    <span class="badge bg-{{ $event->status_color }} bg-gradient px-3 py-2 fs-6">
+                        <i class="fas {{ $event->status == 'upcoming' ? 'fa-clock' : ($event->status == 'ongoing' ? 'fa-play' : 'fa-stop') }} me-1"></i>
+                        {{ $event->status_name }}
+                    </span>
+                </div>
+                @endif
             </div>
             <div>
                 <a href="{{ route('home') }}" class="btn btn-outline-secondary">
@@ -229,6 +237,7 @@
                 
                 <!-- Event Highlights -->
                 <div class="row mt-4">
+                    @if($event->category == 'event')
                     <div class="col-md-6 mb-3">
                         <div class="info-highlight">
                             <div class="d-flex align-items-center">
@@ -245,6 +254,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                     <div class="col-md-6 mb-3">
                         <div class="info-highlight">
                             <div class="d-flex align-items-center">
@@ -452,6 +462,7 @@
                 
                 <!-- Event Info Summary -->
                 <div class="event-summary mb-4">
+                    @if($event->category == 'event')
                     <div class="summary-item mb-3">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-calendar-alt me-2 text-primary"></i>
@@ -464,6 +475,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                     <div class="summary-item mb-3">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-clock me-2 text-success"></i>

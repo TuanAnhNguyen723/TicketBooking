@@ -62,6 +62,56 @@ class Event extends Model
         };
     }
 
+    // Phương thức để tự động tính status dựa trên ngày hiện tại
+    public function getStatusAttribute()
+    {
+        if ($this->category !== 'event' || !$this->start_date || !$this->end_date) {
+            return null; // Không áp dụng cho địa điểm du lịch hoặc không có ngày
+        }
+        
+        $now = now()->toDateString();
+        $startDate = $this->start_date;
+        $endDate = $this->end_date;
+        
+        if ($now < $startDate) {
+            return 'upcoming'; // Sắp diễn ra
+        } elseif ($now >= $startDate && $now <= $endDate) {
+            return 'ongoing'; // Đang diễn ra
+        } else {
+            return 'ended'; // Kết thúc
+        }
+    }
+
+    // Phương thức để lấy tên status bằng tiếng Việt (chỉ cho sự kiện)
+    public function getStatusNameAttribute()
+    {
+        if ($this->category !== 'event') {
+            return null; // Không áp dụng cho địa điểm du lịch
+        }
+        
+        return match($this->status) {
+            'upcoming' => 'Sắp diễn ra',
+            'ongoing' => 'Đang diễn ra',
+            'ended' => 'Kết thúc',
+            default => 'Không xác định'
+        };
+    }
+
+    // Phương thức để lấy màu status
+    public function getStatusColorAttribute()
+    {
+        if ($this->category !== 'event') {
+            return null; // Không áp dụng cho địa điểm du lịch
+        }
+        
+        return match($this->status) {
+            'upcoming' => 'warning',
+            'ongoing' => 'success',
+            'ended' => 'secondary',
+            default => 'light'
+        };
+    }
+
     // Scope để lọc theo category
     public function scopeEvents($query)
     {

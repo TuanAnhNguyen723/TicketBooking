@@ -122,13 +122,13 @@
             </div>
 
             <!-- Thời gian -->
-            <div class="space-y-4">
+            <div class="space-y-4" id="time-section">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
                     <i class="fas fa-calendar-alt text-purple-600"></i>
                     Thời gian
                 </h3>
                 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="date-fields">
                     <div>
                         <label for="start_date" class="form-label">Ngày bắt đầu <span class="text-red-500">*</span></label>
                         <input type="date" name="start_date" id="start_date" value="{{ old('start_date') }}" required 
@@ -139,14 +139,16 @@
                     </div>
                     
                     <div>
-                        <label for="end_date" class="form-label">Ngày kết thúc <span class="text-red-500">*</span></label>
+                        <label for="end_date" class="form-label mt-4">Ngày kết thúc <span class="text-red-500">*</span></label>
                         <input type="date" name="end_date" id="end_date" value="{{ old('end_date') }}" required 
                                class="form-input @error('end_date') border-red-500 @enderror">
                         @error('end_date')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="opening_time" class="form-label">Giờ mở cửa</label>
                         <input type="time" name="opening_time" id="opening_time" value="{{ old('opening_time') }}" 
@@ -388,5 +390,43 @@ function previewGalleryImages(input) {
         preview.classList.add('hidden');
     }
 }
+</script>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('category');
+    const dateFields = document.getElementById('date-fields');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    
+    function toggleFields() {
+        if (categorySelect.value === 'event') {
+            // Hiển thị date fields cho sự kiện
+            dateFields.style.display = 'block';
+            startDateInput.required = true;
+            endDateInput.required = true;
+            startDateInput.disabled = false;
+            endDateInput.disabled = false;
+        } else {
+            // Ẩn date fields cho địa điểm du lịch
+            dateFields.style.display = 'none';
+            startDateInput.required = false;
+            endDateInput.required = false;
+            startDateInput.disabled = true;
+            endDateInput.disabled = true;
+            startDateInput.value = '';
+            endDateInput.value = '';
+        }
+    }
+    
+    // Toggle on page load if there's an old value
+    toggleFields();
+    
+    // Toggle when category changes
+    categorySelect.addEventListener('change', toggleFields);
+});
 </script>
 @endsection

@@ -20,48 +20,54 @@
 
         <div class="row g-4 mb-5">
             @foreach($attractions as $event)
-                <div class="col-lg-4 col-md-6">
-                    <div class="card event-card h-100 border-0 shadow-sm">
-                        <div class="position-relative overflow-hidden">
-                            @if($event->image)
-                            @php
-                                $homeImagePath = $event->image;
-                                if (!str_starts_with($homeImagePath, 'images/events/')) {
-                                    $homeImagePath = 'images/events/' . $homeImagePath;
-                                }
-                            @endphp
-                            <img src="{{ asset($homeImagePath) }}" 
-                                 class="card-img-top event-image" 
-                                 alt="{{ $event->name }}"
-                                 onerror="this.style.display='none';">
+            <div class="col-lg-4 col-md-6">
+                <div class="card event-card h-100 border-0 shadow-sm">
+                    <div class="position-relative overflow-hidden">
+                        @if($event->image)
+                        @php
+                            $homeImagePath = $event->image;
+                            if (!str_starts_with($homeImagePath, 'images/events/')) {
+                                $homeImagePath = 'images/events/' . $homeImagePath;
+                            }
+                        @endphp
+                        <img src="{{ asset($homeImagePath) }}" 
+                             class="card-img-top event-image" 
+                             alt="{{ $event->name }}"
+                             onerror="this.style.display='none';">
+                        @endif
+                        @php
+                            $remainingTotal = null;
+                            if (!is_null($event->total_capacity)) {
+                                $sold = \App\Models\Ticket::where('event_id', $event->id)
+                                    ->whereIn('status', ['paid','checked_in'])
+                                    ->count();
+                                $remainingTotal = max(0, $event->total_capacity - $sold);
+                            }
+                        @endphp
+                        <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
+                        @if(!is_null($event->total_capacity))
+                            <span class="badge bg-danger bg-gradient px-3 py-2">
+                                <i class="fas fa-ticket-alt me-1"></i>
+                                Còn lại: {{ $remainingTotal }}
+                            </span>
+                            @else
+                            <span class="badge bg-danger bg-gradient px-3 py-2">
+                                <i class="fas fa-ticket-alt me-1"></i>
+                                    Không giới hạn
+                            </span>
                             @endif
-                            @php
-                                $remainingTotal = null;
-                                if (!is_null($event->total_capacity)) {
-                                    $sold = \App\Models\Ticket::where('event_id', $event->id)
-                                        ->whereIn('status', ['paid','checked_in'])
-                                        ->count();
-                                    $remainingTotal = max(0, $event->total_capacity - $sold);
-                                }
-                            @endphp
-                            @if(!is_null($event->total_capacity))
-                            <div class="position-absolute top-0 start-0 m-3">
-                                <span class="badge bg-danger bg-gradient px-3 py-2">
-                                    Còn lại: {{ $remainingTotal }}
-                                </span>
-                            </div>
-                            @endif
-                            <div class="position-absolute top-0 end-0 m-3">
-                                <span class="badge bg-info bg-gradient px-3 py-2">
-                                    <i class="fas fa-map-marker-alt me-1"></i>
-                                    {{ $event->category_name }}
-                                </span>
-                            </div>
-                            <div class="position-absolute bottom-0 start-0 m-3">
-                                <span class="price-tag">
-                                    Từ {{ number_format($event->child_price) }}₫
-                                </span>
-                            </div>
+                        </div>
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-info bg-gradient px-3 py-2">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                {{ $event->category_name }}
+                            </span>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 m-3">
+                            <span class="price-tag">
+                                Từ {{ number_format($event->child_price) }}₫
+                            </span>
+                        </div>
                         </div>
                         
                         <div class="card-body d-flex flex-column p-4">
@@ -77,13 +83,21 @@
                                     <i class="fas fa-map-marker-alt text-primary me-2"></i>
                                     <span class="location-tag">{{ $event->location }}</span>
                                 </div>
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center mb-2">
                                     <i class="fas fa-clock text-primary me-2"></i>
                                     <small class="text-muted">
                                         {{ \Carbon\Carbon::parse($event->opening_time)->format('H:i') }} - 
                                         {{ \Carbon\Carbon::parse($event->closing_time)->format('H:i') }}
                                     </small>
                                 </div>
+                                @if($event->category == 'event' && $event->status_name)
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-{{ $event->status_color }} bg-gradient px-3 py-2">
+                                        <i class="fas {{ $event->status == 'upcoming' ? 'fa-clock' : ($event->status == 'ongoing' ? 'fa-play' : 'fa-stop') }} me-1"></i>
+                                        {{ $event->status_name }}
+                                    </span>
+                                </div>
+                                @endif
                             </div>
                             
                             <div class="mt-auto">
@@ -136,13 +150,19 @@
                                     $remainingTotal = max(0, $event->total_capacity - $sold);
                                 }
                             @endphp
-                            @if(!is_null($event->total_capacity))
-                            <div class="position-absolute top-0 start-0 m-3">
+                            <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
+                                @if(!is_null($event->total_capacity))
                                 <span class="badge bg-danger bg-gradient px-3 py-2">
+                                    <i class="fas fa-ticket-alt me-1"></i>
                                     Còn lại: {{ $remainingTotal }}
                                 </span>
+                                @else
+                                <span class="badge bg-danger bg-gradient px-3 py-2">
+                                    <i class="fas fa-ticket-alt me-1"></i>
+                                        Không giới hạn
+                                </span>
+                                @endif
                             </div>
-                            @endif
                             <div class="position-absolute top-0 end-0 m-3">
                                 <span class="badge bg-success bg-gradient px-3 py-2">
                                     <i class="fas fa-calendar me-1"></i>
@@ -152,48 +172,56 @@
                             <div class="position-absolute bottom-0 start-0 m-3">
                                 <span class="price-tag">
                                     Từ {{ number_format($event->child_price) }}₫
-                                </span>
-                            </div>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="mb-3">
+                            <h5 class="card-title fw-bold mb-2">{{ $event->name }}</h5>
+                            <p class="card-text text-muted small flex-grow-1 mb-3">
+                                {{ Str::limit($event->short_description, 120) }}
+                            </p>
                         </div>
                         
-                        <div class="card-body d-flex flex-column p-4">
-                            <div class="mb-3">
-                                <h5 class="card-title fw-bold mb-2">{{ $event->name }}</h5>
-                                <p class="card-text text-muted small flex-grow-1 mb-3">
-                                    {{ Str::limit($event->short_description, 120) }}
-                                </p>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <span class="location-tag">{{ $event->location }}</span>
                             </div>
-                            
-                            <div class="mb-3">
                                 <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                    <span class="location-tag">{{ $event->location }}</span>
-                                </div>
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <small class="text-muted">
+                                    {{ \Carbon\Carbon::parse($event->opening_time)->format('H:i') }} - 
+                                    {{ \Carbon\Carbon::parse($event->closing_time)->format('H:i') }}
+                                </small>
+                            </div>
+                                @if($event->category == 'event' && $event->status_name)
                                 <div class="d-flex align-items-center">
-                                    <i class="fas fa-clock text-primary me-2"></i>
-                                    <small class="text-muted">
-                                        {{ \Carbon\Carbon::parse($event->opening_time)->format('H:i') }} - 
-                                        {{ \Carbon\Carbon::parse($event->closing_time)->format('H:i') }}
-                                    </small>
+                                    <span class="badge bg-{{ $event->status_color }} bg-gradient px-3 py-2">
+                                        <i class="fas {{ $event->status == 'upcoming' ? 'fa-clock' : ($event->status == 'ongoing' ? 'fa-play' : 'fa-stop') }} me-1"></i>
+                                        {{ $event->status_name }}
+                                    </span>
                                 </div>
-                            </div>
-                            
-                            <div class="mt-auto">
-                                <a href="{{ route('events.show', $event) }}" class="btn btn-primary w-100">
-                                    <i class="fas fa-eye me-2"></i>Xem chi tiết
-                                </a>
-                            </div>
+                                @endif
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <a href="{{ route('events.show', $event) }}" class="btn btn-primary w-100">
+                                <i class="fas fa-eye me-2"></i>Xem chi tiết
+                            </a>
                         </div>
                     </div>
                 </div>
-            @endforeach
-        </div>
+            </div>
+        @endforeach
+    </div>
         @endif
 
         <!-- Empty state nếu không có sự kiện nào -->
         @if($featuredEvents->count() == 0 && $attractions->count() == 0)
-        <div class="row">
-            <div class="col-12">
+    <div class="row">
+        <div class="col-12">
                 <div class="empty-state">
                     <i class="fas fa-search fa-4x text-muted mb-4"></i>
                     <h3 class="text-muted mb-3">Không có kết quả phù hợp</h3>
@@ -207,10 +235,10 @@
                     <a href="{{ route('home') }}" class="btn btn-primary btn-lg">
                         <i class="fas fa-home me-2"></i>Về trang chủ
                     </a>
-                </div>
             </div>
         </div>
-        @endif
+    </div>
+@endif
     </div>
 </section>
 @endsection
